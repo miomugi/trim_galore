@@ -1,2 +1,5 @@
 #trim_galore with paired adaptors
 trim_galore --paired --stringency 3 --length 36 -a AGATCGGAAGAGCGGTTCAGCAGGAATGCCGAGACCGATCTCGTATGCCGTCTTCTGCTT -a2 TACCCTTCGCTTCACACACAAGGGGAAAGAGTGTAGATCTCGGTGGTCGC SRR17198102_1.fastq.gz SRR17198102_2.fastq.gz
+
+#bowtie2
+bowtie2 -p 10 -x mm10 -1 stuff/data/ddx21_clip_GSE190677/trim/SRR17198102_1_trimmed.fq.gz -2 stuff/data/ddx21_clip_GSE190677/trim/SRR17198102_2_trimmed.fq.gz | samtools sort -O bowtie2 -@ 10 -o - > SRR17198102.bam
