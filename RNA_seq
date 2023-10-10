@@ -1,0 +1,60 @@
+###RNA Sequencing of Genome in a Bottle sample, GM12878
+
+#1. Download： 
+
+cd ~/example/data/
+#download from URL
+wget https://sra-pub-run-odp.s3.amazonaws.com/sra/SRR5665260/SRR5665260
+#or use sra toolkit
+
+export PATH=$PATH:~/Bio_software/sratoolkit.3.0.0-ubuntu64/bin
+prefetch SRR5665260 -O ./
+#在当前⽬录下会出现⼀个SRA编号的⽂件夹，⾥⾯是sra⽂件
+
+#2. sra to fastq
+
+cd ~/example/data/SRR5665260
+fastq-dump --split-3 --gzip SRR5665260.sra -O ./
+
+#3Quality control
+
+#3.1 fastqc
+fastqc -t 12 -o out_path sample_1.fq sample_2.fq
+mkdir 01QC
+cd 01QC
+mkdir fastqc
+#fastqc
+fastqc -t 12 -o ./fastqc ../data/SRR5665260/SRR5665260_1.fastq.gz ../data/SRR5665260/SRR5665260_2.fastq.gz
+
+#3.2 fastp
+
+#!/usr/bin/bash
+##命令解释器的声明，指定了bash的具体位置
+indir=/your_data_path
+outdir=/your_out_path
+fastp -i ${indir}/SRR5665260_1.fastq.gz -I ${indir}/SRR5665260_2.fastq.gz \
+ -o ${outdir}/SRR5665260_1.trimmed.fastq.gz \
+ -O ${outdir}/SRR5665260_2.trimmed.fastq.gz \
+ --detect_adapter_for_pe
+
+#4  Mapping with HISAT2
+
+# 4.1 build index for reference genome
+hisat2-build [options]* <reference_in> <ht2_index_base>
+
+#mapping RNA-seq数据的⼯具通常还需要提供⼀个gtf注释⽂件以获得splicing位点的信息
+##Extract splice junctions from a GTF file by using hisats
+GTF=/your_gtf_path/hg38.refGene.gtf
+extract_splice_sites.py $GTF >hisat2_hg38_splice_sites.txt
+
+# 4.2hisat2 mapping
+indir=/your_in_path
+outdir=/your_out_path
+index=/your_index_path/genome
+splice=/your_path
+hisat2 -p 8 -x $index --no-unal --known-splicesite-infile $splice \
+ --summary-file ${outdir}/SRR5665260.align_summary \
+ -1 ${indir}/SRR5665260_1.trimmed.fastq.gz \
+ -2 ${indir}/SRR5665260_2.trimmed.fastq.gz |samtools view -bS |samtools sort >${outdir}/SRR5665260.sorted.bam
+#建⽴bam⽂件索引
+samtools index ${outdir}/SRR5665260.sorted.bam
