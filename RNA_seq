@@ -37,9 +37,15 @@ fastp -i ${indir}/SRR5665260_1.fastq.gz -I ${indir}/SRR5665260_2.fastq.gz \
  -O ${outdir}/SRR5665260_2.trimmed.fastq.gz \
  --detect_adapter_for_pe
 
+fastp -i SRR5665260_1.fastq.gz -I SRR5665260_2.fastq.gz \
+ -o SRR5665260_1.trimmed.fastq.gz \
+ -O SRR5665260_2.trimmed.fastq.gz \
+ --detect_adapter_for_pe
+
 #4  Mapping with HISAT2
 
 # 4.1 build index for reference genome
+export PATH=$PATH:~/Bio_software/hisat2-2.2.0/bin
 hisat2-build [options]* <reference_in> <ht2_index_base>
 
 #mapping RNA-seq数据的⼯具通常还需要提供⼀个gtf注释⽂件以获得splicing位点的信息
