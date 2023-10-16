@@ -3,3 +3,15 @@ trim_galore --paired --stringency 3 --length 36 -a AGATCGGAAGAGCGGTTCAGCAGGAATGC
 
 #bowtie2
 bowtie2 -p 10 -x mm10 -1 stuff/data/ddx21_clip_GSE190677/trim/SRR17198102_1_trimmed.fq.gz -2 stuff/data/ddx21_clip_GSE190677/trim/SRR17198102_2_trimmed.fq.gz | samtools sort -O bowtie2 -@ 10 -o - > SRR17198102.bam
+
+# hisat2 mapping
+indir=/home/undergraduate/stuff/data/ddx21_clip_GSE190677/trim
+outdir=/home/undergraduate/stuff/data/ddx21_clip_GSE190677/hisat2
+index=/home/undergraduate/stuff/reference/GRCh38.p14/index/hisat2/GRCh38.p14
+splice=/home/undergraduate/stuff/reference/GRCh38.p14/gtf
+hisat2 -p 8 -x $index --no-unal --known-splicesite-infile $splice \
+ --summary-file ${outdir}/SRR17198102.align_summary \
+ -1 ${indir}/SRR17198102_1_trimmed.fq.gz \
+ -2 ${indir}/SRR17198102_2_trimmed.fq.gz |samtools view -bS |samtools sort >${outdir}/SRR5665260.1.sorted.bam
+#建⽴bam⽂件索引
+samtools index ${outdir}/SRR5665260.sorted.bam
