@@ -10,13 +10,13 @@ done
 #bowtie2
 bowtie2 -p 10 -x mm10 -1 stuff/data/ddx21_clip_GSE190677/trim/SRR17198102_1_trimmed.fq.gz -2 stuff/data/ddx21_clip_GSE190677/trim/SRR17198102_2_trimmed.fq.gz | samtools sort -O bowtie2 -@ 10 -o - > SRR17198102.bam
 
-bowtie2_index=/public/reference/index/bowtie/mm10
-ls ../clean/*gz |while read id;
+bowtie2_index=/home/undergraduate/stuff/reference/GRCh38.p14/index/bowtie2/GRCh38.p14
+ls ../trim/*gz |while read id;
 do 
 file=$(basename $id )
 sample=${file%%.*}
 echo $file $sample
-$bin_bowtie2  -p 5  -x  $bowtie2_index -U  $id | samtools sort  -O bam  -@ 5 -o - > ${sample}.bam 
+bowtie2  -p 5  -x  $bowtie2_index -U  $id | samtools sort  -O bam  -@ 5 -o - > ${sample}.bam 
 done
 
 # hisat2 mapping
