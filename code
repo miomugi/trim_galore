@@ -1,8 +1,23 @@
 #trim_galore with paired adaptors
 trim_galore --paired --stringency 3 --length 36 -a AGATCGGAAGAGCGGTTCAGCAGGAATGCCGAGACCGATCTCGTATGCCGTCTTCTGCTT -a2 TACCCTTCGCTTCACACACAAGGGGAAAGAGTGTAGATCTCGGTGGTCGC SRR17198102_1.fastq.gz SRR17198102_2.fastq.gz
 
+analysis_dir=/home/undergraduate/stuff/data/ddx21_clip_GSE190677
+ls ../*gz | while read fq1;
+do 
+trim_galore -q 25 --phred33 --length 25 -e 0.1 --stringency 4 -o $analysis_dir/trim  $fq1 & 
+done 
+
 #bowtie2
 bowtie2 -p 10 -x mm10 -1 stuff/data/ddx21_clip_GSE190677/trim/SRR17198102_1_trimmed.fq.gz -2 stuff/data/ddx21_clip_GSE190677/trim/SRR17198102_2_trimmed.fq.gz | samtools sort -O bowtie2 -@ 10 -o - > SRR17198102.bam
+
+bowtie2_index=/public/reference/index/bowtie/mm10
+ls ../clean/*gz |while read id;
+do 
+file=$(basename $id )
+sample=${file%%.*}
+echo $file $sample
+$bin_bowtie2  -p 5  -x  $bowtie2_index -U  $id | samtools sort  -O bam  -@ 5 -o - > ${sample}.bam 
+done
 
 # hisat2 mapping
 indir=/home/undergraduate/stuff/data/ddx21_clip_GSE190677/trim
