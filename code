@@ -30,3 +30,22 @@ hisat2 -p 8 -x $index --no-unal --known-splicesite-infile $splice \
  -2 ${indir}/SRR17198102_2_trimmed.fq.gz |samtools view -bS |samtools sort >${outdir}/SRR5665260.1.sorted.bam
 #建⽴bam⽂件索引
 samtools index ${outdir}/SRR5665260.sorted.bam
+
+#merge bam files
+ls *.bam|sed 's/_[0-9]_trimmed.bam//g' |sort -u |while read id;do samtools merge ../mergeBam/$id.merge.bam $id*.bam ;done
+
+#use macs2 to find peaks
+macs2 callpeak -t SRR17198102.merge.bam -f BAM -B -g mm -n SRR17198102 --outdir ../peaks
+
+cd  ~/project/epi/mergeBam 
+source activate chipseq
+ls  *merge.bam |cut -d"." -f 1 |while read id;
+do 
+	if [ ! -s ${id}_summits.bed ];
+	then 
+echo $id 
+nohup macs2 callpeak -c  Control.merge.bam -t $id.merge.bam -f BAM -B -g mm -n $id --outdir ../peaks  2> $id.log &  
+	fi 
+done 
+
+#use deeptools to visualization
