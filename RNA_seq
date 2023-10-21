@@ -64,3 +64,14 @@ hisat2 -p 8 -x $index --no-unal --known-splicesite-infile $splice \
  -2 ${indir}/SRR5665260_2.trimmed.fastq.gz |samtools view -bS |samtools sort >${outdir}/SRR5665260.sorted.bam
 #建⽴bam⽂件索引
 samtools index ${outdir}/SRR5665260.sorted.bam
+
+#5Mapping with bowtie2
+bowtie2_index=/home/undergraduate/stuff/reference/GRCh38.p14/index/bowtie2/GRCh38.p14
+ls ../trim/*gz |while read id;
+do 
+file=$(basename $id )
+sample=${file%%.*}
+echo $file $sample
+bowtie2  -p 5  -x  $bowtie2_index -U  $id | samtools sort  -O bam  -@ 5 -o - > ${sample}.bam 
+done
+
