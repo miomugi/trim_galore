@@ -31,6 +31,9 @@ hisat2 -p 8 -x $index --no-unal --known-splicesite-infile $splice \
 #建⽴bam⽂件索引
 samtools index ${outdir}/SRR5665260.sorted.bam
 
+#star mapping
+STAR --runThreadN 8 --genomeDir /home/undergraduate/stuff/reference/GRCh38.p14/index/star/ --readFilesIn /home/undergraduate/stuff/data/ddx21_clip_GSE190677/trim/SRR17198102_1_trimmed.fq.gz /home/undergraduate/stuff/data/ddx21_clip_GSE190677/trim/SRR17198102_2_trimmed.fq.gz --outFileNamePrefix ./tmp/SRR14510889. --outFilterType BySJout --outFilterMultimapNmax 20 --alignSJoverhangMin 8 --alignSJDBoverhangMin 1 --alignIntronMin 20 --alignIntronMax 1000000 --alignMatesGapMax 1000000 --outFilterMismatchNoverReadLmax 0.1 --outFilterMismatchNmax 999 --alignEndsType Extend5pOfReads12 --alignSoftClipAtReferenceEnds No --outSAMtype None --readFilesCommand zcat
+
 #merge bam files
 ls *.bam|sed 's/_[0-9]_trimmed.bam//g' |sort -u |while read id;do samtools merge ../mergeBam/$id.merge.bam $id*.bam ;done
 
@@ -49,3 +52,5 @@ nohup macs2 callpeak -c  Control.merge.bam -t $id.merge.bam -f BAM -B -g mm -n $
 done 
 
 #use deeptools to visualization
+
+
